@@ -55,9 +55,14 @@ public class ChatController {
             return ResponseEntity.badRequest()
                     .body("Already logined");
         }
+
         User newUser = new User().setLogin(name);
         userDao.insert(newUser);
         log.info("[" + name + "] logined");
+
+        newUser = userDao.getByName(name);
+        Message loginMessage = new Message().setUser(newUser).setValue("logined");
+        messageDao.insert(loginMessage);
 
         return ResponseEntity.ok().build();
     }
@@ -71,7 +76,25 @@ public class ChatController {
             consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity logout(@RequestParam("name") String name) {
-        throw new UnsupportedOperationException();
+        if (name.length() < 1) {
+            return ResponseEntity.badRequest()
+                    .body("Too short name, sorry :(");
+        }
+
+        List<User> alreadyLogined = userDao.getAllWhere("chat.user.login = '" + name + "'");
+        if (!alreadyLogined.stream().anyMatch(l -> l.getLogin().equals(name))) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Not logined");
+        }
+
+        User toDelete = userDao.getByName(name);
+        Message logoutMessage = new Message().setUser(toDelete).setValue("logouted");
+
+        messageDao.insert(logoutMessage);
+        userDao.delete(toDelete);
+        log.info("[" + name + "] logouted");
+
+        return ResponseEntity.ok().build();
     }
 
 
@@ -136,7 +159,7 @@ public class ChatController {
 
 
     /**
-     * curl -i localhost:8080/chat/chat
+     * curl -i localhost:8080/chat/chat -d "name=I_AM_STUPID"
      */
     @RequestMapping(
             path = "chat",

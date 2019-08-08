@@ -31,6 +31,11 @@ public class UserDao implements Dao<User> {
             "insert into chat.user (login) " +
                     "values ('%s');";
 
+    private static final String DELETE_USER_WHERE =
+            "DELETE " +
+                    "FROM chat.user " +
+                    "WHERE ";
+
     @Override
     public List<User> getAll() {
         List<User> persons = new ArrayList<>();
@@ -81,7 +86,19 @@ public class UserDao implements Dao<User> {
     }
 
     public User getByName(String name) {
-        throw new UnsupportedOperationException();
+        String condition = "login = '" + name + "'";
+        return getAllWhere(condition).get(0);
+    }
+
+    public void delete(User user) {
+        try (Connection con = DbConnector.getConnection();
+             Statement stm = con.createStatement();
+        ) {
+            String condition = "login = '" + user.getLogin() + "'";
+            stm.execute(DELETE_USER_WHERE + condition);
+        } catch (SQLException e) {
+            log.error("Failed to delete user {}", user.getLogin(), e);
+        }
     }
 
     private static User mapToUser(ResultSet rs) throws SQLException {
