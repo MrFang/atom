@@ -10,7 +10,7 @@ repositories {
 }
 
 apply plugin: 'java'
-apply plugin: 'checkstyle'
+//apply plugin: 'checkstyle'
 
 dependencies {
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
@@ -30,8 +30,8 @@ dependencies {
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: '2.0.0.RELEASE'
 }
 
-checkstyle {
-    ignoreFailures = false
-    toolVersion = '7.5'
-    configFile = new File('../config/checkstyle/checkstyle.xml')
-}
+//checkstyle {
+//    ignoreFailures = false
+//    toolVersion = '7.5'
+//    configFile = new File('../config/checkstyle/checkstyle.xml')
+//}

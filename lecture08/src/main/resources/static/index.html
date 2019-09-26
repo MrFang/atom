@@ -40,63 +40,53 @@ https://github.com/sockjs/sockjs-client
         var msg = $('#msgform').serialize();
         var name = $('#nameform').serialize();
 
-        var msgData = JSON.stringify(
-        {
-            "topic": "message",
-            "data": {
-                "sender": name,
-                "msg": msg
-            }
-        });
+        var settings = {
+            method: 'POST',
+            crossDomain: true,
+            url: 'http://' + host + ':' + port + '/chat/say',
+            data: name + '&' + msg
+        };
 
-        sock.send(msgData);
+        $.ajax(settings)
     }
 
     function login() {
         var name = $('#nameform').serialize();
-//        var settings = {
-//            "method": "POST",
-//            "crossDomain": true,
-//            "url": "http://" + host + ":" + port + "/chat/login",
-//            "data": name
-//        };
-//
-//        $.ajax(settings).done(function (response) {
-        initSock();
-//        }).fail(function (jqXHR, textStatus) {
-//            alert(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
-//            console.log(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
-//        });
-//
+        var settings = {
+            "method": "POST",
+            "crossDomain": true,
+            "url": "http://" + host + ":" + port + "/chat/login",
+            "data": name
+        };
+
+        $.ajax(settings)
+            .done(function (response) {
+                initSock();
+            })
+            .fail(function (jqXHR, textStatus) {
+                alert(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
+                console.log(jqXHR.status + " " + jqXHR.statusText + ". " + jqXHR.responseText);
+            });
+
     }
 
     function initSock() {
         sock = new SockJS('http://' + host + ':' + port + '/' + path);
         sock.onopen = function() {
             console.log('open');
-            updateHistory();
-            setInterval(updateHistory, 10000);
         };
 
         sock.onmessage = function (e) {
-            console.log(e.data)
-            // check topic if you will provide other than "history"
-            setHistory(e.data)
+            console.log(e.data);
+            setHistory(e.data);
         }
     }
 
-    function updateHistory() {
-        var history = JSON.stringify(
-            {
-                "topic" : "history"
-            }
-        );
-        sock.send(history)
-    }
-
+    
     function setHistory(data) {
-        $("#history").html(data.replace(/\n/g, "<br />"))
-        $("#history").scrollTop($("#history")[0].scrollHeight);
+        var history = $("#history");
+        history.html(data.replace(/\n/g, "<br />"));
+        history.scrollTop(history[0].scrollHeight);
     }
 
 </script>
